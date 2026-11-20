@@ -12,7 +12,7 @@ if(demoMode){
   const sample=()=>rooms.forEach(x=>{
     const power=Math.max(80,x.powerW+Math.round((Math.random()-.5)*100));
     x.energyWh+=power*interval/3600000;
-    store.insertReading({deviceId:x.room.toLowerCase().replaceAll(" ","-")+"-demo",room:x.room,occupancy:Math.max(0,x.occupancy+Math.round((Math.random()-.5)*4)),powerW,energyWh:Number(x.energyWh.toFixed(3)),temperatureC:Number((x.temp+(Math.random()-.5)*.6).toFixed(1)),source:"demo",recordedAt:new Date().toISOString()});
+    store.insertReading({deviceId:x.room.toLowerCase().replaceAll(" ","-")+"-demo",room:x.room,occupancy:Math.max(0,x.occupancy+Math.round((Math.random()-.5)*4)),powerW:power,energyWh:Number(x.energyWh.toFixed(3)),temperatureC:Number((x.temp+(Math.random()-.5)*.6).toFixed(1)),source:"demo",recordedAt:new Date().toISOString()});
   });
   if(store.latest(1).length===0)sample();
   const timer=setInterval(sample,interval);timer.unref();
