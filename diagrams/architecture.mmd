@@ -1,0 +1,7 @@
+flowchart LR
+  A[IR entry sensors] --> C[ESP32]
+  B[Isolated energy meter] --> C
+  C -->|Wi-Fi| D[Express API]
+  D --> E[(SQLite)]
+  E --> D
+  D --> F[Web dashboard]
