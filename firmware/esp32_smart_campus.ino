@@ -21,6 +21,7 @@ HardwareSerial meterSerial(2);
 PZEM004Tv30 meter(meterSerial,PZEM_RX,PZEM_TX);
 int occupancy=0;
 bool oldA=false,oldB=false;
+int firstBeam=0; // 1 = A first, 2 = B first
 unsigned long lastSend=0,sequenceStart=0;
 void connectWiFi(){
  WiFi.mode(WIFI_STA);WiFi.begin(WIFI_SSID,WIFI_PASSWORD);
@@ -30,9 +31,18 @@ void connectWiFi(){
 }
 void updateOccupancy(){
  bool a=digitalRead(SENSOR_A)==LOW,b=digitalRead(SENSOR_B)==LOW;
- if(a&&!oldA)sequenceStart=millis();
- if(b&&!oldB&&sequenceStart&&millis()-sequenceStart<1000)occupancy++;
- if(a&&!oldA&&oldB&&millis()-sequenceStart<1000)occupancy=max(0,occupancy-1);
+ bool eventA=a&&!oldA,eventB=b&&!oldB;
+ unsigned long now=millis();
+ if(firstBeam!=0 && now-sequenceStart>1000)firstBeam=0;
+ if(eventA&&eventB){firstBeam=0;} // simultaneous beam breaks are ignored
+ else if(eventA){
+   if(firstBeam==2&&now-sequenceStart<=1000){occupancy=max(0,occupancy-1);firstBeam=0;}
+   else {firstBeam=1;sequenceStart=now;}
+ }
+ else if(eventB){
+   if(firstBeam==1&&now-sequenceStart<=1000){occupancy=min(500,occupancy+1);firstBeam=0;}
+   else {firstBeam=2;sequenceStart=now;}
+ }
  oldA=a;oldB=b;occupancy=constrain(occupancy,0,500);
 }
 void sendReading(){
