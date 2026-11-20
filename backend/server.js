@@ -8,12 +8,11 @@ const apiKey=process.env.DEVICE_API_KEY||"change-me";
 const demoMode=String(process.env.DEMO_MODE||"true").toLowerCase()==="true";
 const interval=Math.max(2000,Number(process.env.DEMO_INTERVAL_MS||5000));
 if(demoMode){
-  let energy=1250;
-  const rooms=[{room:"Classroom 1",occupancy:24,powerW:820,temp:27.4},{room:"Computer Lab",occupancy:18,powerW:1160,temp:25.8},{room:"Library",occupancy:9,powerW:340,temp:26.2}];
+  const rooms=[{room:"Classroom 1",occupancy:24,powerW:820,temp:27.4,energyWh:1250},{room:"Computer Lab",occupancy:18,powerW:1160,temp:25.8,energyWh:2040},{room:"Library",occupancy:9,powerW:340,temp:26.2,energyWh:760}];
   const sample=()=>rooms.forEach(x=>{
     const power=Math.max(80,x.powerW+Math.round((Math.random()-.5)*100));
-    energy+=power*interval/3600000;
-    store.insertReading({deviceId:x.room.toLowerCase().replaceAll(" ","-")+"-demo",room:x.room,occupancy:Math.max(0,x.occupancy+Math.round((Math.random()-.5)*4)),powerW,energyWh:Number(energy.toFixed(3)),temperatureC:Number((x.temp+(Math.random()-.5)*.6).toFixed(1)),source:"demo",recordedAt:new Date().toISOString()});
+    x.energyWh+=power*interval/3600000;
+    store.insertReading({deviceId:x.room.toLowerCase().replaceAll(" ","-")+"-demo",room:x.room,occupancy:Math.max(0,x.occupancy+Math.round((Math.random()-.5)*4)),powerW,energyWh:Number(x.energyWh.toFixed(3)),temperatureC:Number((x.temp+(Math.random()-.5)*.6).toFixed(1)),source:"demo",recordedAt:new Date().toISOString()});
   });
   if(store.latest(1).length===0)sample();
   const timer=setInterval(sample,interval);timer.unref();
